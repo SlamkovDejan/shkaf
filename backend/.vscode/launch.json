@@ -10,6 +10,7 @@
             "request": "launch",
             "module": "uvicorn",
             "cwd": "${workspaceFolder}/src/shkaf",
+            "envFile": "${workspaceFolder}/.env",
             "args": [
                 "main:app",
                 "--reload",
