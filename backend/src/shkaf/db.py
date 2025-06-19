@@ -2,7 +2,7 @@ from typing import Annotated, AsyncGenerator
 
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import declarative_base
 from sqlmodel import SQLModel
 
 from shkaf.config import (
@@ -18,22 +18,15 @@ DATABASE_URI = f"postgresql+asyncpg://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATAB
 engine = create_async_engine(DATABASE_URI)
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
-
-class Base(DeclarativeBase):
-    pass
-
+Base = declarative_base()
 
 SQLModel.metadata = Base.metadata
-
-
-async def create_db_and_tables() -> None:
-    async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_maker() as session:
         yield session
+        await session.commit()
 
 
 SessionDep = Annotated[AsyncSession, Depends(get_session)]

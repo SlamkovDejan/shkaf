@@ -1,20 +1,10 @@
-from contextlib import asynccontextmanager
-from typing import AsyncGenerator, Union
-
 from fastapi import FastAPI
 
-from shkaf.auth.main import auth_backend, fastapi_users
+from shkaf.auth.main import CurrentUserDep, auth_backend, fastapi_users
 from shkaf.auth.schemas import UserCreate, UserRead, UserUpdate
-from shkaf.db import create_db_and_tables
 
+app = FastAPI()
 
-@asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator:  # noqa
-    await create_db_and_tables()
-    yield
-
-
-app = FastAPI(lifespan=lifespan)
 
 app.include_router(
     fastapi_users.get_auth_router(auth_backend),
@@ -44,10 +34,10 @@ app.include_router(
 
 
 @app.get("/")
-async def read_root() -> dict:
+async def root() -> dict:
     return {"Hello": "World"}
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None) -> dict:
-    return {"item_id": item_id, "q": q}
+@app.get("/authorized")
+async def authorized_root(user: CurrentUserDep) -> dict:
+    return {"Hello": "World", "mail": user.email}
