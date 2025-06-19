@@ -9,6 +9,9 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard] (>=0.115.13,<0.116.0)",
+    "fastapi-users[sqlalchemy] (>=14.0.1,<15.0.0)",
+    "sqlmodel (>=0.0.24,<0.0.25)",
+    "asyncpg (>=0.30.0,<0.31.0)",
 ]
 
 [tool.poetry.group.dev.dependencies]
@@ -23,7 +26,6 @@ flake8-bugbear = "^23.9.16"
 
 [tool.poetry]
 packages = [{include = "shkaf", from = "src"}]
-package-mode = false
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
