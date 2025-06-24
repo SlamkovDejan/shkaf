@@ -41,3 +41,9 @@ async def root() -> dict:
 @app.get("/authorized")
 async def authorized_root(user: CurrentUserDep) -> dict:
     return {"Hello": "World", "mail": user.email}
+
+
+@app.get("/closet/me", tags=["closet"])
+async def get_my_closet(user: CurrentUserDep):
+    closet = await user.awaitable_attrs.closet
+    return closet

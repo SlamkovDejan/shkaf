@@ -13,7 +13,6 @@ import sqlalchemy as sa
 from alembic import op
 from fastapi_users_db_sqlalchemy.generics import TIMESTAMPAware
 
-# revision identifiers, used by Alembic.
 revision: str = "2de04320e14d"
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
