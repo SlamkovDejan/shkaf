@@ -5,8 +5,8 @@ from fastapi import Depends
 from fastapi_users import FastAPIUsers
 
 from shkaf.auth.backend import auth_backend
-from shkaf.auth.user import User
 from shkaf.auth.user_manager import get_user_manager
+from shkaf.models import User
 
 fastapi_users = FastAPIUsers[User, uuid.UUID](
     get_user_manager,

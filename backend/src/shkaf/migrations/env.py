@@ -7,8 +7,7 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlmodel import SQLModel
 
-from shkaf.auth.token import AccessToken  # noqa
-from shkaf.auth.user import User  # noqa
+import shkaf.models  # noqa
 from shkaf.db import DATABASE_URI
 
 # this is the Alembic Config object, which provides

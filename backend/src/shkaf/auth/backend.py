@@ -1,7 +1,7 @@
 from fastapi_users.authentication import AuthenticationBackend, BearerTransport
 from fastapi_users.authentication.strategy.db import DatabaseStrategy
 
-from shkaf.auth.token import AccessTokenDep
+from shkaf.auth.dependencies import AccessTokenDep
 
 
 def get_database_strategy(access_token_db: AccessTokenDep) -> DatabaseStrategy:

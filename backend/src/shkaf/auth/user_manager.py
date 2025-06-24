@@ -4,7 +4,8 @@ from typing import Annotated, AsyncGenerator
 from fastapi import Depends
 from fastapi_users import BaseUserManager, UUIDIDMixin
 
-from shkaf.auth.user import User, UsersDep
+from shkaf.auth.dependencies import UsersDep
+from shkaf.models import User
 
 SECRET = "SECRET"
 
