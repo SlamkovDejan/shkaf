@@ -2,8 +2,6 @@ from typing import Annotated, AsyncGenerator
 
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import declarative_base
-from sqlmodel import SQLModel
 
 from shkaf.config import (
     DATABASE_HOST,
@@ -17,10 +15,6 @@ DATABASE_URI = f"postgresql+asyncpg://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATAB
 
 engine = create_async_engine(DATABASE_URI)
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
-
-Base = declarative_base()
-
-SQLModel.metadata = Base.metadata
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
