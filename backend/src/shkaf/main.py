@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from shkaf.auth.main import CurrentUserDep, auth_backend, fastapi_users
+from shkaf.auth.main import CurrentUserDep, UserWithClosetDep, auth_backend, fastapi_users
 from shkaf.auth.schemas import UserCreate, UserRead, UserUpdate
 
 app = FastAPI()
@@ -44,6 +44,10 @@ async def authorized_root(user: CurrentUserDep) -> dict:
 
 
 @app.get("/closet/me", tags=["closet"])
-async def get_my_closet(user: CurrentUserDep):
-    closet = await user.awaitable_attrs.closet
-    return closet
+async def get_my_closet(user: UserWithClosetDep) -> dict:
+    # await session.refresh(user, attribute_names=["closet"])
+    # await session.refresh(user, attribute_names=["closet"])
+    # closet: Closet = await user.awaitable_attrs.closet
+    print(user.closet)
+    # cloting_pieces =
+    return {"a": "b"}
