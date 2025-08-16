@@ -136,8 +136,8 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     """Downgrade schema."""
-    op.drop_constraint(None, "outfit_clothing_pieces", type_="foreignkey")
-    op.drop_constraint(None, "outfit_clothing_pieces", type_="foreignkey")
+    op.drop_constraint(None, "outfit_clothing_pieces", type_="foreignkey")  # type: ignore
+    op.drop_constraint(None, "outfit_clothing_pieces", type_="foreignkey")  # type: ignore
     op.create_foreign_key(
         op.f("outfit_clothing_pieces_clothing_piece_id_fkey"),
         "outfit_clothing_pieces",
@@ -152,7 +152,7 @@ def downgrade() -> None:
         ["outfit_id"],
         ["id"],
     )
-    op.drop_constraint(None, "clothing_pieces", type_="foreignkey")
+    op.drop_constraint(None, "clothing_pieces", type_="foreignkey")  # type: ignore
     op.drop_column("clothing_pieces", "size_id")
     op.drop_column("clothing_pieces", "favorite")
     op.drop_column("clothing_pieces", "comment")

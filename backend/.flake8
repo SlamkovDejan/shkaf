@@ -7,6 +7,7 @@ ignore = E501,
          # Whitespace before ":" (rule is incompatible with black)
          T100,
          T101,
+         B008
          # Ignoring todos for the moment since the legacy code has many
 exclude = .git,
           .poetry,

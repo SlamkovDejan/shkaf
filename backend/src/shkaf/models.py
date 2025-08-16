@@ -130,6 +130,7 @@ class ClothingPieceStatusAssociation(Base):
 class ClothingPiece(UUIDModel):
     __tablename__ = "clothing_pieces"
 
+    image_path: Mapped[str]
     descriptor: Mapped[str]
     brand: Mapped[str]
     purchase_date: Mapped[Optional[pyDate]]
@@ -198,23 +199,43 @@ class OutfitOfTheDay(UUIDModel):
     outfit: Mapped[Outfit] = relationship(back_populates="ootds")
 
 
-class Color(TranslatedModel):  # TODO: create initial rows
+class Color(TranslatedModel):
     __tablename__ = "colors"
 
     hex: Mapped[str]
 
+    user_id: Mapped[pyUUID] = mapped_column(
+        UUID, ForeignKey("users.id", ondelete="cascade"), nullable=False
+    )
 
-class WeatherSeason(TranslatedModel):  # TODO: create initial rows
+
+class WeatherSeason(TranslatedModel):
     __tablename__ = "weather_seasons"
 
+    user_id: Mapped[pyUUID] = mapped_column(
+        UUID, ForeignKey("users.id", ondelete="cascade"), nullable=False
+    )
 
-class ClothingPieceStatus(TranslatedModel):  # TODO: create initial rows
+
+class ClothingPieceStatus(TranslatedModel):
     __tablename__ = "clothing_piece_status"
 
+    user_id: Mapped[pyUUID] = mapped_column(
+        UUID, ForeignKey("users.id", ondelete="cascade"), nullable=False
+    )
 
-class ClothingPieceFabric(TranslatedModel):  # TODO: create initial rows
+
+class ClothingPieceFabric(TranslatedModel):
     __tablename__ = "clothing_piece_fabric"
 
+    user_id: Mapped[pyUUID] = mapped_column(
+        UUID, ForeignKey("users.id", ondelete="cascade"), nullable=False
+    )
 
-class ClothingPieceSize(TranslatedModel):  # TODO: create initial rows
+
+class ClothingPieceSize(TranslatedModel):
     __tablename__ = "clothing_piece_size"
+
+    user_id: Mapped[pyUUID] = mapped_column(
+        UUID, ForeignKey("users.id", ondelete="cascade"), nullable=False
+    )
