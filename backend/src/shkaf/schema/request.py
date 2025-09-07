@@ -9,12 +9,12 @@ from pydantic import BaseModel, field_validator
 class ClothingPieceCreate(BaseModel):
     image: UploadFile
     descriptor: str
-    brand: str
+    brand: str | None = None
     purchase_date: date | None = None
     place_of_purchase: str | None = None
     price: float | None = None
     price_currency: str | None = None
-    tags: list[str]
+    tags: list[str] | None = None
     comment: str | None = None
     favorite: bool = False
 

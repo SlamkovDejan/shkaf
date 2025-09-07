@@ -26,7 +26,7 @@ async def get_my_closet(user: CurrentUserDep) -> Any:
 
 
 @router.post("/me/add-piece", response_model=ClothingPieceResponse)
-async def add_piece_to_closet(
+async def add_piece_to_my_closet(
     data: Annotated[ClothingPieceCreate, Form(media_type="multipart/form-data")],
     user: CurrentUserDep,
     db: SessionDep,
@@ -52,7 +52,7 @@ async def add_piece_to_closet(
         colors=colors,
         weather_seasons=weather_seasons,
         fabric=fabric,
-        tags=",".join(data.tags),
+        tags=",".join(data.tags) if data.tags else None,
         **primitive_piece_data,
     )
     db.add(clothing_piece)

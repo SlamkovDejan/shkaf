@@ -134,12 +134,12 @@ class ClothingPiece(UUIDModel):
 
     image_path: Mapped[str]
     descriptor: Mapped[str]
-    brand: Mapped[str]
+    brand: Mapped[Optional[str]]
     purchase_date: Mapped[Optional[pyDate]]
     place_of_purchase: Mapped[Optional[str]]
     price: Mapped[Optional[float]]
     price_currency: Mapped[Optional[str]]
-    tags: Mapped[str]  # coma-separated  TODO: need to rethink-this
+    tags: Mapped[Optional[str]]  # coma-separated  TODO: need to rethink-this
     comment: Mapped[Optional[str]]
     favorite: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 

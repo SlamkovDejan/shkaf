@@ -24,11 +24,11 @@ class ClothingPieceResponse(BaseModel):
     id: UUID
     image_path: str
     descriptor: str
-    brand: str
+    brand: str | None = None
     purchase_date: date | None = None
     price: float | None = None
     price_currency: str | None = None
-    tags: str
+    tags: str | None = None
     comment: str | None = None
     favorite: bool
 
