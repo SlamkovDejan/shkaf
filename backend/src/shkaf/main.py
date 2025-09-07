@@ -9,19 +9,17 @@ from shkaf.db import SessionDep
 from shkaf.models import (
     ClothingPiece,
     ClothingPieceFabric,
-    ClothingPieceSize,
     ClothingPieceStatus,
     ClothingPieceStatusAssociation,
     Color,
     WeatherSeason,
 )
-from shkaf.queries import get_by_ids, get_user_data
+from shkaf.queries import get_by_ids
+from shkaf.routers import data_router
 from shkaf.schema.request import ClothingPieceCreate
 from shkaf.schema.response import (
     ClosetResponse,
     ClothingPieceResponse,
-    ColorResponse,
-    TranslatedModelResponse,
 )
 from shkaf.utils import save_image
 
@@ -54,6 +52,8 @@ app.include_router(
     prefix="/users",
     tags=["users"],
 )
+# custom routers
+app.include_router(data_router, prefix="/data", tags=["data"])
 
 
 @app.get("/")
@@ -71,35 +71,6 @@ async def get_my_closet(user: CurrentUserDep) -> Any:
     return user.closet
 
 
-@app.get("/data/clothing-piece-sizes", tags=["data"], response_model=list[TranslatedModelResponse])
-async def get_clothing_piece_sizes(user: CurrentUserDep, db: SessionDep) -> Any:
-    return await get_user_data(ClothingPieceSize, user.id, db)
-
-
-@app.get(
-    "/data/clothing-piece-fabrics", tags=["data"], response_model=list[TranslatedModelResponse]
-)
-async def get_clothing_piece_fabrics(user: CurrentUserDep, db: SessionDep) -> Any:
-    return await get_user_data(ClothingPieceFabric, user.id, db)
-
-
-@app.get(
-    "/data/clothing-piece-statuses", tags=["data"], response_model=list[TranslatedModelResponse]
-)
-async def get_clothing_piece_statuses(user: CurrentUserDep, db: SessionDep) -> Any:
-    return await get_user_data(ClothingPieceStatus, user.id, db)
-
-
-@app.get("/data/weather-seasons", tags=["data"], response_model=list[TranslatedModelResponse])
-async def get_weather_seasons(user: CurrentUserDep, db: SessionDep) -> Any:
-    return await get_user_data(WeatherSeason, user.id, db)
-
-
-@app.get("/data/colors", tags=["data"], response_model=list[ColorResponse])
-async def get_colors(user: CurrentUserDep, db: SessionDep) -> Any:
-    return await get_user_data(Color, user.id, db)
-
-
 @app.post("/closet/me/add-piece", tags=["closet"], response_model=ClothingPieceResponse)
 async def add_piece_to_closet(
     data: Annotated[ClothingPieceCreate, Form(media_type="multipart/form-data")],
@@ -107,8 +78,6 @@ async def add_piece_to_closet(
     db: SessionDep,
 ) -> Any:
     image_path = save_image(data.image)
-    # TODO: figure out creation of these models of the ones that don't exist
-    # separate screen for adding removing of these; like a config screen
     colors = await get_by_ids(Color, data.colors_ids or [], db)
     weather_seasons = await get_by_ids(WeatherSeason, data.weather_seasons_ids or [], db)
     fabric = await get_by_ids(ClothingPieceFabric, data.fabrics_ids or [], db)

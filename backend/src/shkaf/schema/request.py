@@ -47,3 +47,12 @@ class ClothingPieceCreate(BaseModel):
         if isinstance(v, list):
             return [parsed_item.strip() for item in v for parsed_item in item.split(",")]
         return []
+
+
+class TranslatedModelCreate(BaseModel):
+    name_en: str
+    name_mk: str | None = None
+
+
+class ColorCreate(TranslatedModelCreate):
+    hex: str
