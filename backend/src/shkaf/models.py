@@ -48,7 +48,7 @@ class TranslatedModel(UUIDModel):
 class User(SQLAlchemyBaseUserTableUUID, AuditModel):
     __tablename__ = "users"
 
-    closet: Mapped["Closet"] = relationship(uselist=False)
+    closet: Mapped["Closet"] = relationship(uselist=False, lazy="joined")
 
 
 class AccessToken(SQLAlchemyBaseAccessTokenTable[pyUUID], Base):
@@ -68,9 +68,9 @@ class Closet(UUIDModel):
         UUID, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True
     )
 
-    clothing_pieces: Mapped[list["ClothingPiece"]] = relationship()
-    outfits: Mapped[list["Outfit"]] = relationship()
-    ootds: Mapped[list["OutfitOfTheDay"]] = relationship()
+    clothing_pieces: Mapped[list["ClothingPiece"]] = relationship(lazy="selectin")
+    outfits: Mapped[list["Outfit"]] = relationship(lazy="selectin")
+    ootds: Mapped[list["OutfitOfTheDay"]] = relationship(lazy="selectin")
 
 
 outfit_clothing_pieces = Table(
@@ -123,8 +123,10 @@ class ClothingPieceStatusAssociation(Base):
     date: Mapped[pyDate] = mapped_column(Date, nullable=False, default=pyDate.today)
     is_current: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
-    clothing_piece: Mapped["ClothingPiece"] = relationship(back_populates="status_associations")
-    status: Mapped["ClothingPieceStatus"] = relationship()
+    clothing_piece: Mapped["ClothingPiece"] = relationship(
+        back_populates="status_associations", lazy="joined"
+    )
+    status: Mapped["ClothingPieceStatus"] = relationship(lazy="joined")
 
 
 class ClothingPiece(UUIDModel):
@@ -137,7 +139,7 @@ class ClothingPiece(UUIDModel):
     place_of_purchase: Mapped[Optional[str]]
     price: Mapped[Optional[float]]
     price_currency: Mapped[Optional[str]]
-    tags: Mapped[str]  # coma-separated
+    tags: Mapped[str]  # coma-separated  TODO: need to rethink-this
     comment: Mapped[Optional[str]]
     favorite: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
@@ -148,22 +150,26 @@ class ClothingPiece(UUIDModel):
         UUID, ForeignKey("clothing_piece_size.id", ondelete="SET NULL"), nullable=True
     )
 
-    size: Mapped[Optional["ClothingPieceSize"]] = relationship(uselist=False)
+    size: Mapped[Optional["ClothingPieceSize"]] = relationship(uselist=False, lazy="joined")
     outfits: Mapped[list["Outfit"]] = relationship(
         secondary=outfit_clothing_pieces,
         back_populates="clothing_pieces",
+        lazy="selectin",
     )
     colors: Mapped[list["Color"]] = relationship(
         secondary=clothing_pieces_colors,
+        lazy="selectin",
     )
     weather_seasons: Mapped[list["WeatherSeason"]] = relationship(
         secondary=clothing_pieces_weather_seasons,
+        lazy="selectin",
     )
     status_associations: Mapped[list["ClothingPieceStatusAssociation"]] = relationship(
-        back_populates="clothing_piece", cascade="all, delete-orphan"
+        back_populates="clothing_piece", cascade="all, delete-orphan", lazy="selectin"
     )
     fabric: Mapped[list["ClothingPieceFabric"]] = relationship(
         secondary=clothing_pieces_fabric,
+        lazy="selectin",
     )
 
     @property
@@ -179,9 +185,9 @@ class Outfit(UUIDModel):
     )
 
     clothing_pieces: Mapped[list[ClothingPiece]] = relationship(
-        secondary=outfit_clothing_pieces, back_populates="outfits"
+        secondary=outfit_clothing_pieces, back_populates="outfits", lazy="selectin"
     )
-    ootds: Mapped[list["OutfitOfTheDay"]] = relationship(back_populates="outfit")
+    ootds: Mapped[list["OutfitOfTheDay"]] = relationship(back_populates="outfit", lazy="selectin")
 
 
 class OutfitOfTheDay(UUIDModel):
@@ -196,7 +202,7 @@ class OutfitOfTheDay(UUIDModel):
         UUID, ForeignKey("closets.id", ondelete="CASCADE"), nullable=False
     )
 
-    outfit: Mapped[Outfit] = relationship(back_populates="ootds")
+    outfit: Mapped[Outfit] = relationship(back_populates="ootds", lazy="joined")
 
 
 class Color(TranslatedModel):

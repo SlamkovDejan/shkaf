@@ -48,3 +48,12 @@ class ClothingPieceResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ClosetResponse(BaseModel):
+    id: UUID
+    name: str
+    clothing_pieces: list[ClothingPieceResponse]
+
+    class Config:
+        from_attributes = True

@@ -3,7 +3,7 @@ from typing import Annotated, Any
 from fastapi import FastAPI, Form
 from fastapi.staticfiles import StaticFiles
 
-from shkaf.auth.main import CurrentUserDep, UserWithClosetDep, auth_backend, fastapi_users
+from shkaf.auth.main import CurrentUserDep, auth_backend, fastapi_users
 from shkaf.auth.schemas import UserCreate, UserRead, UserUpdate
 from shkaf.db import SessionDep
 from shkaf.models import (
@@ -17,7 +17,12 @@ from shkaf.models import (
 )
 from shkaf.queries import get_by_ids, get_user_data
 from shkaf.schema.request import ClothingPieceCreate
-from shkaf.schema.response import ClothingPieceResponse, ColorResponse, TranslatedModelResponse
+from shkaf.schema.response import (
+    ClosetResponse,
+    ClothingPieceResponse,
+    ColorResponse,
+    TranslatedModelResponse,
+)
 from shkaf.utils import save_image
 
 app = FastAPI()
@@ -61,8 +66,8 @@ async def authorized_root(user: CurrentUserDep) -> dict:
     return {"Hello": "World", "mail": user.email}
 
 
-@app.get("/closet/me", tags=["closet"])
-async def get_my_closet(user: UserWithClosetDep):
+@app.get("/closet/me", tags=["closet"], response_model=ClosetResponse)
+async def get_my_closet(user: CurrentUserDep) -> Any:
     return user.closet
 
 
@@ -98,10 +103,12 @@ async def get_colors(user: CurrentUserDep, db: SessionDep) -> Any:
 @app.post("/closet/me/add-piece", tags=["closet"], response_model=ClothingPieceResponse)
 async def add_piece_to_closet(
     data: Annotated[ClothingPieceCreate, Form(media_type="multipart/form-data")],
-    user: UserWithClosetDep,
+    user: CurrentUserDep,
     db: SessionDep,
 ) -> Any:
     image_path = save_image(data.image)
+    # TODO: figure out creation of these models of the ones that don't exist
+    # separate screen for adding removing of these; like a config screen
     colors = await get_by_ids(Color, data.colors_ids or [], db)
     weather_seasons = await get_by_ids(WeatherSeason, data.weather_seasons_ids or [], db)
     fabric = await get_by_ids(ClothingPieceFabric, data.fabrics_ids or [], db)
