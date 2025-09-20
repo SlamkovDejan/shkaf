@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_serializer
@@ -45,6 +45,19 @@ class ClothingPieceResponse(BaseModel):
     @field_serializer("tags")
     def serialize_tags(self, value: str) -> list[str]:
         return value.split(",") if value else []
+
+    class Config:
+        from_attributes = True
+
+
+class OutfitResponse(BaseModel):
+    id: UUID
+    name: str | None = None
+    created_at: datetime
+    try_on_photo_path: str | None = None
+    occasion: TranslatedModelResponse | None = None
+    aesthetic: TranslatedModelResponse | None = None
+    clothing_pieces: list[ClothingPieceResponse]
 
     class Config:
         from_attributes = True

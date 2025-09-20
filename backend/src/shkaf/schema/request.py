@@ -56,3 +56,24 @@ class TranslatedModelCreate(BaseModel):
 
 class ColorCreate(TranslatedModelCreate):
     hex: str
+
+
+class OutfitCreate(BaseModel):
+    name: str | None = None
+    clothing_piece_ids: list[UUID]
+    occasion_id: UUID | None = None
+    aesthetic_id: UUID | None = None
+    try_on_photo: UploadFile | None = None
+
+    @field_validator("clothing_piece_ids", mode="before")
+    @classmethod
+    def split_uuid_csv(cls, v: Any) -> list[UUID]:
+        def split_and_strip(item: str) -> list[UUID]:
+            parts = item.split(",")
+            return [UUID(item.strip()) for item in parts if item.strip()]
+
+        if isinstance(v, list):
+            return [parsed_item for item in v for parsed_item in split_and_strip(item)]
+        if isinstance(v, str):
+            return split_and_strip(v)
+        return []

@@ -35,7 +35,7 @@ class AuditModel(Base):
 class UUIDModel(AuditModel):
     __abstract__ = True
 
-    id: Mapped[UUID] = mapped_column(UUID, primary_key=True, default=uuid4, nullable=False)
+    id: Mapped[pyUUID] = mapped_column(UUID, primary_key=True, default=uuid4, nullable=False)
 
 
 class TranslatedModel(UUIDModel):
@@ -64,7 +64,7 @@ class Closet(UUIDModel):
 
     name: Mapped[str] = mapped_column(String, nullable=False)
 
-    user_id: Mapped[UUID] = mapped_column(
+    user_id: Mapped[pyUUID] = mapped_column(
         UUID, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True
     )
 
@@ -114,10 +114,10 @@ clothing_pieces_fabric = Table(
 class ClothingPieceStatusAssociation(Base):
     __tablename__ = "clothing_pieces_statuses"
 
-    clothing_piece_id: Mapped[UUID] = mapped_column(
+    clothing_piece_id: Mapped[pyUUID] = mapped_column(
         UUID, ForeignKey("clothing_pieces.id", ondelete="CASCADE"), primary_key=True
     )
-    status_id: Mapped[UUID] = mapped_column(
+    status_id: Mapped[pyUUID] = mapped_column(
         UUID, ForeignKey("clothing_piece_status.id", ondelete="CASCADE"), primary_key=True
     )
     date: Mapped[pyDate] = mapped_column(Date, nullable=False, default=pyDate.today)
@@ -143,10 +143,10 @@ class ClothingPiece(UUIDModel):
     comment: Mapped[Optional[str]]
     favorite: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
-    closet_id: Mapped[UUID] = mapped_column(
+    closet_id: Mapped[pyUUID] = mapped_column(
         UUID, ForeignKey("closets.id", ondelete="CASCADE"), nullable=False
     )
-    size_id: Mapped[Optional[UUID]] = mapped_column(
+    size_id: Mapped[Optional[pyUUID]] = mapped_column(
         UUID, ForeignKey("clothing_piece_size.id", ondelete="SET NULL"), nullable=True
     )
 
@@ -180,10 +180,21 @@ class ClothingPiece(UUIDModel):
 class Outfit(UUIDModel):
     __tablename__ = "outfits"
 
-    closet_id: Mapped[UUID] = mapped_column(
+    name: Mapped[Optional[str]]
+    try_on_photo_path: Mapped[Optional[str]]
+
+    closet_id: Mapped[pyUUID] = mapped_column(
         UUID, ForeignKey("closets.id", ondelete="CASCADE"), nullable=False
     )
+    occasion_id: Mapped[Optional[pyUUID]] = mapped_column(
+        UUID, ForeignKey("outfit_occasions.id", ondelete="SET NULL"), nullable=True
+    )
+    aesthetic_id: Mapped[Optional[pyUUID]] = mapped_column(
+        UUID, ForeignKey("outfit_aesthetics.id", ondelete="SET NULL"), nullable=True
+    )
 
+    occasion: Mapped[Optional["OutfitOccasion"]] = relationship(uselist=False, lazy="joined")
+    aesthetic: Mapped[Optional["OutfitAesthetic"]] = relationship(uselist=False, lazy="joined")
     clothing_pieces: Mapped[list[ClothingPiece]] = relationship(
         secondary=outfit_clothing_pieces, back_populates="outfits", lazy="selectin"
     )
@@ -195,10 +206,10 @@ class OutfitOfTheDay(UUIDModel):
 
     date: Mapped[pyDate] = mapped_column(Date, default=pyDate.today, nullable=False)
 
-    outfit_id: Mapped[UUID] = mapped_column(
+    outfit_id: Mapped[pyUUID] = mapped_column(
         ForeignKey("outfits.id", ondelete="CASCADE"), nullable=False
     )
-    closet_id: Mapped[UUID] = mapped_column(
+    closet_id: Mapped[pyUUID] = mapped_column(
         UUID, ForeignKey("closets.id", ondelete="CASCADE"), nullable=False
     )
 
@@ -217,6 +228,22 @@ class Color(TranslatedModel):
 
 class WeatherSeason(TranslatedModel):
     __tablename__ = "weather_seasons"
+
+    user_id: Mapped[pyUUID] = mapped_column(
+        UUID, ForeignKey("users.id", ondelete="cascade"), nullable=False
+    )
+
+
+class OutfitOccasion(TranslatedModel):
+    __tablename__ = "outfit_occasions"
+
+    user_id: Mapped[pyUUID] = mapped_column(
+        UUID, ForeignKey("users.id", ondelete="cascade"), nullable=False
+    )
+
+
+class OutfitAesthetic(TranslatedModel):
+    __tablename__ = "outfit_aesthetics"
 
     user_id: Mapped[pyUUID] = mapped_column(
         UUID, ForeignKey("users.id", ondelete="cascade"), nullable=False

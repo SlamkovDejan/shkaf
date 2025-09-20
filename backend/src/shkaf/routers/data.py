@@ -9,6 +9,8 @@ from shkaf.models import (
     ClothingPieceSize,
     ClothingPieceStatus,
     Color,
+    OutfitAesthetic,
+    OutfitOccasion,
     WeatherSeason,
 )
 from shkaf.queries import create_translated_model_entity, get_user_data
@@ -78,3 +80,27 @@ async def create_weather_season(
 @router.get("/weather-seasons", response_model=list[TranslatedModelResponse])
 async def get_weather_seasons(user: CurrentUserDep, db: SessionDep) -> Any:
     return await get_user_data(WeatherSeason, user.id, db)
+
+
+@router.post("/outfit-aesthetics", response_model=TranslatedModelResponse)
+async def create_outfit_aesthetic(
+    data: TranslatedModelCreate, user: CurrentUserDep, db: SessionDep
+) -> Any:
+    return await create_translated_model_entity(OutfitAesthetic, user.id, db, **data.model_dump())
+
+
+@router.get("/outfit-aesthetics", response_model=list[TranslatedModelResponse])
+async def get_outfit_aesthetics(user: CurrentUserDep, db: SessionDep) -> Any:
+    return await get_user_data(OutfitAesthetic, user.id, db)
+
+
+@router.post("/outfit-occasions", response_model=TranslatedModelResponse)
+async def create_outfit_occasion(
+    data: TranslatedModelCreate, user: CurrentUserDep, db: SessionDep
+) -> Any:
+    return await create_translated_model_entity(OutfitOccasion, user.id, db, **data.model_dump())
+
+
+@router.get("/outfit-occasions", response_model=list[TranslatedModelResponse])
+async def get_outfit_occasions(user: CurrentUserDep, db: SessionDep) -> Any:
+    return await get_user_data(OutfitOccasion, user.id, db)
