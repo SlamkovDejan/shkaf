@@ -19,6 +19,7 @@ from shkaf.queries import (
     get_by_ids,
     get_outfits_by_closet_id_ordered_by_creation_date,
     get_user_data_by_id,
+    get_user_data_by_ids,
 )
 from shkaf.schema.request import ClothingPieceCreate, OutfitCreate
 from shkaf.schema.response import ClosetResponse, ClothingPieceResponse, OutfitResponse
@@ -39,9 +40,11 @@ async def add_piece_to_my_closet(
     db: SessionDep,
 ) -> Any:
     image_path = save_image(data.image)
-    colors = await get_by_ids(Color, data.colors_ids or [], db)
-    weather_seasons = await get_by_ids(WeatherSeason, data.weather_seasons_ids or [], db)
-    fabric = await get_by_ids(ClothingPieceFabric, data.fabrics_ids or [], db)
+    colors = await get_user_data_by_ids(Color, user.id, data.colors_ids or [], db)
+    weather_seasons = await get_user_data_by_ids(
+        WeatherSeason, user.id, data.weather_seasons_ids or [], db
+    )
+    fabric = await get_user_data_by_ids(ClothingPieceFabric, user.id, data.fabrics_ids or [], db)
     primitive_piece_data = data.model_dump(
         exclude={
             "tags",
@@ -64,7 +67,7 @@ async def add_piece_to_my_closet(
     )
     db.add(clothing_piece)
 
-    statuses = await get_by_ids(ClothingPieceStatus, data.statuses_ids or [], db)
+    statuses = await get_user_data_by_ids(ClothingPieceStatus, user.id, data.statuses_ids or [], db)
     status_associations = [
         ClothingPieceStatusAssociation(clothing_piece=clothing_piece, status=status)
         for status in statuses

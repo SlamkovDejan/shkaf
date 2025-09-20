@@ -30,6 +30,14 @@ async def get_user_data_by_id(model: Type[U], user_id: UUID, id: UUID, db: Sessi
     return result.scalar_one_or_none()
 
 
+async def get_user_data_by_ids(
+    model: Type[U], user_id: UUID, ids: list[UUID], db: SessionDep
+) -> Sequence[U]:
+    stmt = select(model).where(model.user_id == user_id, model.id.in_(ids))  # type: ignore
+    result = await db.execute(stmt)
+    return result.scalars().all()
+
+
 async def create_translated_model_entity(
     model: Type[TR], user_id: UUID, db: SessionDep, **data: dict
 ) -> TR:
