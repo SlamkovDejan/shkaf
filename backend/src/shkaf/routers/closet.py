@@ -1,6 +1,8 @@
+from datetime import date
+from itertools import groupby
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Form
+from fastapi import APIRouter, Form, HTTPException, Query
 
 from shkaf.auth.main import CurrentUserDep
 from shkaf.db import SessionDep
@@ -13,16 +15,25 @@ from shkaf.models import (
     Outfit,
     OutfitAesthetic,
     OutfitOccasion,
+    OutfitOfTheDay,
     WeatherSeason,
 )
 from shkaf.queries import (
     get_by_ids,
+    get_ootds_by_closet_id_and_date_range,
+    get_outfit_by_id_and_closet_id,
     get_outfits_by_closet_id_ordered_by_creation_date,
     get_user_data_by_id,
     get_user_data_by_ids,
 )
-from shkaf.schema.request import ClothingPieceCreate, OutfitCreate
-from shkaf.schema.response import ClosetResponse, ClothingPieceResponse, OutfitResponse
+from shkaf.schema.request import ClothingPieceCreate, OutfitCreate, OutfitOfTheDayCreate
+from shkaf.schema.response import (
+    ClosetResponse,
+    ClothingPieceResponse,
+    OOTDCalendarResponse,
+    OutfitOfTheDayResponse,
+    OutfitResponse,
+)
 from shkaf.utils import save_image
 
 router = APIRouter()
@@ -106,7 +117,6 @@ async def create_outfit(
     if data.try_on_photo:
         try_on_photo_path = save_image(data.try_on_photo)
 
-    # Create outfit
     outfit = Outfit(
         name=data.name,
         closet_id=user.closet.id,
@@ -130,3 +140,44 @@ async def create_outfit(
 async def get_my_outfits(user: CurrentUserDep, db: SessionDep) -> Any:
     outfits = await get_outfits_by_closet_id_ordered_by_creation_date(user.closet.id, db)
     return outfits
+
+
+@router.post("/me/ootd", response_model=OutfitOfTheDayResponse)
+async def create_outfit_of_the_day(
+    data: OutfitOfTheDayCreate,
+    user: CurrentUserDep,
+    db: SessionDep,
+) -> Any:
+    outfit = await get_outfit_by_id_and_closet_id(data.outfit_id, user.closet.id, db)
+
+    if not outfit:
+        raise HTTPException(status_code=400, detail="Outfit not found in user's closet")
+
+    ootd = OutfitOfTheDay(
+        date=data.date,
+        outfit_id=data.outfit_id,
+        closet_id=user.closet.id,
+    )
+
+    db.add(ootd)
+    await db.commit()
+    await db.refresh(ootd, attribute_names=["outfit"])
+
+    return ootd
+
+
+@router.get("/me/ootd/calendar", response_model=list[OOTDCalendarResponse])
+async def get_ootd_calendar(
+    date_from: Annotated[date, Query(description="Start date for the calendar range")],
+    date_to: Annotated[date, Query(description="End date for the calendar range")],
+    user: CurrentUserDep,
+    db: SessionDep,
+) -> Any:
+    ootds = await get_ootds_by_closet_id_and_date_range(user.closet.id, date_from, date_to, db)
+
+    grouped_ootds = [
+        {"date": ootd_date, "ootds": list(ootds_group)}
+        for ootd_date, ootds_group in groupby(ootds, key=lambda x: x.date)
+    ]
+
+    return grouped_ootds

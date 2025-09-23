@@ -77,3 +77,8 @@ class OutfitCreate(BaseModel):
         if isinstance(v, str):
             return split_and_strip(v)
         return []
+
+
+class OutfitOfTheDayCreate(BaseModel):
+    outfit_id: UUID
+    date: date

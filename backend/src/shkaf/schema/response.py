@@ -63,6 +63,20 @@ class OutfitResponse(BaseModel):
         from_attributes = True
 
 
+class OutfitOfTheDayResponse(BaseModel):
+    id: UUID
+    date: date
+    outfit: OutfitResponse
+
+    class Config:
+        from_attributes = True
+
+
+class OOTDCalendarResponse(BaseModel):
+    date: date
+    ootds: list[OutfitOfTheDayResponse]
+
+
 class ClosetResponse(BaseModel):
     id: UUID
     name: str
