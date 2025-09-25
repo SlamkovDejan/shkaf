@@ -133,6 +133,7 @@ class ClothingPiece(UUIDModel):
     __tablename__ = "clothing_pieces"
 
     image_path: Mapped[str]
+    image_no_bg_path: Mapped[Optional[str]]
     descriptor: Mapped[str]
     brand: Mapped[Optional[str]]
     purchase_date: Mapped[Optional[pyDate]]

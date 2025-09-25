@@ -1,9 +1,9 @@
 import io
 import os
 from shutil import copyfileobj
-from uuid import uuid4
+from typing import BinaryIO
 
-from fastapi import HTTPException, UploadFile
+from fastapi import HTTPException
 from PIL import Image
 from pillow_heif import register_heif_opener
 from rembg import remove
@@ -13,12 +13,10 @@ register_heif_opener()
 IMAGES_FOLDER_PATH = "public/images"
 
 
-def save_image(image_file: UploadFile) -> str:
-    ext = os.path.splitext(image_file.filename or "")[1]
-    image_filename = f"{uuid4()}{ext}"
-    image_dest_path = os.path.join(IMAGES_FOLDER_PATH, image_filename)
+def save_image(file: BinaryIO, image_name: str) -> str:
+    image_dest_path = os.path.join(IMAGES_FOLDER_PATH, image_name)
     with open(image_dest_path, "wb") as buffer:
-        copyfileobj(image_file.file, buffer)
+        copyfileobj(file, buffer)
     return image_dest_path.removeprefix("public/")
 
 

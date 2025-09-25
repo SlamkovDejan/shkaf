@@ -1,6 +1,9 @@
+import io
+import os
 from datetime import date
 from itertools import groupby
 from typing import Annotated, Any
+from uuid import uuid4
 
 from fastapi import APIRouter, Form, HTTPException, Query
 
@@ -34,7 +37,7 @@ from shkaf.schema.response import (
     OutfitOfTheDayResponse,
     OutfitResponse,
 )
-from shkaf.utils import save_image
+from shkaf.utils import remove_background_from_image, save_image
 
 router = APIRouter()
 
@@ -50,7 +53,16 @@ async def add_piece_to_my_closet(
     user: CurrentUserDep,
     db: SessionDep,
 ) -> Any:
-    image_path = save_image(data.image)
+    ext = os.path.splitext(data.image.filename or "")[1]
+    image_name = uuid4()
+    image_path = save_image(data.image.file, f"{image_name}{ext}")
+
+    no_bg_filename = f"{image_name}_no_bg.png"
+    await data.image.seek(0)
+    image_data = await data.image.read()
+    no_bg_image_data = remove_background_from_image(image_data)
+    image_no_bg_path = save_image(io.BytesIO(no_bg_image_data), no_bg_filename)
+
     colors = await get_user_data_by_ids(Color, user.id, data.colors_ids or [], db)
     weather_seasons = await get_user_data_by_ids(
         WeatherSeason, user.id, data.weather_seasons_ids or [], db
@@ -69,6 +81,7 @@ async def add_piece_to_my_closet(
 
     clothing_piece = ClothingPiece(
         image_path=image_path,
+        image_no_bg_path=image_no_bg_path,
         closet_id=user.closet.id,
         colors=colors,
         weather_seasons=weather_seasons,
@@ -115,7 +128,8 @@ async def create_outfit(
 
     try_on_photo_path = None
     if data.try_on_photo:
-        try_on_photo_path = save_image(data.try_on_photo)
+        ext = os.path.splitext(data.try_on_photo.filename or "")[1]
+        try_on_photo_path = save_image(data.try_on_photo.file, f"{uuid4()}{ext}")
 
     outfit = Outfit(
         name=data.name,

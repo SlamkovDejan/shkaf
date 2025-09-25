@@ -23,6 +23,7 @@ class ColorResponse(TranslatedModelResponse):
 class ClothingPieceResponse(BaseModel):
     id: UUID
     image_path: str
+    image_no_bg_path: str | None = None
     descriptor: str
     brand: str | None = None
     purchase_date: date | None = None
