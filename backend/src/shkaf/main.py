@@ -3,7 +3,7 @@ from fastapi.staticfiles import StaticFiles
 
 from shkaf.auth.main import CurrentUserDep, auth_backend, fastapi_users
 from shkaf.auth.schemas import UserCreate, UserRead, UserUpdate
-from shkaf.routers import closet_router, data_router
+from shkaf.routers import closet_router, data_router, image_router
 
 app = FastAPI()
 
@@ -37,6 +37,7 @@ app.include_router(
 # custom routers
 app.include_router(closet_router, prefix="/closet", tags=["closet"])
 app.include_router(data_router, prefix="/data", tags=["data"])
+app.include_router(image_router, prefix="/image", tags=["image"])
 
 
 @app.get("/")

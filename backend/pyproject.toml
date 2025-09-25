@@ -6,13 +6,16 @@ authors = [
     {name = "dejan.slamkov", email = "dejan_0200@hotmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.14"
 dependencies = [
     "fastapi[standard] (>=0.115.13,<0.116.0)",
     "fastapi-users[sqlalchemy] (>=14.0.1,<15.0.0)",
     "asyncpg (>=0.30.0,<0.31.0)",
     "alembic (>=1.16.2,<2.0.0)",
     "python-multipart (>=0.0.20,<0.0.21)",
+    "rembg (>=2.0.67,<3.0.0)",
+    "onnxruntime (>=1.22.1,<2.0.0)",
+    "pillow-heif (>=1.1.0,<2.0.0)",
 ]
 
 [tool.poetry.group.dev.dependencies]
@@ -50,3 +53,4 @@ disallow_untyped_defs = true
 check_untyped_defs = true
 warn_unused_ignores = true
 show_error_codes = true
+disable_error_code = ["import-untyped"]
