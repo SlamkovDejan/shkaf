@@ -128,6 +128,7 @@ export default function AnimatedLogoScreen({ children }: AnimatedLogoScreenProps
   const logoTranslateY = useSharedValue(0);
   const formContainerOpacity = useSharedValue(0);
   const formContainerTranslateY = useSharedValue(0);
+  const formHeight = useSharedValue(300); // Default height
 
   // Keyboard handling
   const keyboard = useAnimatedKeyboard();
@@ -159,11 +160,6 @@ export default function AnimatedLogoScreen({ children }: AnimatedLogoScreenProps
 
     // After logo appears, move it up and fade in the form simultaneously
     setTimeout(() => {
-      logoTranslateY.value = withTiming(-120, {
-        duration: 800,
-        easing: Easing.out(Easing.cubic),
-      });
-
       formContainerOpacity.value = withTiming(1, {
         duration: 800,
         easing: Easing.out(Easing.cubic),
@@ -180,11 +176,14 @@ export default function AnimatedLogoScreen({ children }: AnimatedLogoScreenProps
   const logoAnimatedStyle = useAnimatedStyle(() => {
     const keyboardOffset = keyboard.height.value > 0 ? -keyboard.height.value * 0.3 : 0;
 
+    // Calculate logo position based on form height
+    const baseLogoPosition = formContainerOpacity.value > 0 ? -(formHeight.value * 0.4) : 0;
+
     return {
       opacity: keyboardOffset ? 0 : logoOpacity.value,
       transform: [
         { scale: logoScale.value },
-        { translateY: logoTranslateY.value }
+        { translateY: baseLogoPosition + keyboardOffset }
       ],
     };
   });
@@ -276,7 +275,16 @@ export default function AnimatedLogoScreen({ children }: AnimatedLogoScreenProps
         />
       </Animated.View>
 
-      <Animated.View style={[styles.formContainer, formContainerAnimatedStyle]}>
+      <Animated.View
+        style={[styles.formContainer, formContainerAnimatedStyle]}
+        onLayout={(event) => {
+          const { height } = event.nativeEvent.layout;
+          formHeight.value = withTiming(height, {
+            duration: 400,
+            easing: Easing.out(Easing.cubic),
+          });
+        }}
+      >
         {children}
       </Animated.View>
     </Animated.View>
@@ -313,7 +321,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 300,
+    minHeight: 200,
     justifyContent: 'flex-end',
     paddingHorizontal: 20,
     paddingBottom: 40,
