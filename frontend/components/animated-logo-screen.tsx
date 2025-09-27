@@ -1,9 +1,10 @@
 import { HangerIcon, HeartIcon } from '@/icons';
 import { Image } from 'expo-image';
 import React, { useEffect } from 'react';
-import { Dimensions, StyleSheet, View } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 import Animated, {
   Easing,
+  useAnimatedKeyboard,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
@@ -116,13 +117,20 @@ function PatternIcon({ icon, row, col, delay }: PatternIconProps) {
   );
 }
 
-export default function AnimatedLogoScreen() {
+interface AnimatedLogoScreenProps {
+  children?: React.ReactNode;
+}
+
+export default function AnimatedLogoScreen({ children }: AnimatedLogoScreenProps) {
   const backgroundOpacity = useSharedValue(0);
   const logoScale = useSharedValue(0);
   const logoOpacity = useSharedValue(0);
   const logoTranslateY = useSharedValue(0);
   const formContainerOpacity = useSharedValue(0);
   const formContainerTranslateY = useSharedValue(0);
+
+  // Keyboard handling
+  const keyboard = useAnimatedKeyboard();
 
   useEffect(() => {
     // Initial animations
@@ -170,8 +178,10 @@ export default function AnimatedLogoScreen() {
   });
 
   const logoAnimatedStyle = useAnimatedStyle(() => {
+    const keyboardOffset = keyboard.height.value > 0 ? -keyboard.height.value * 0.3 : 0;
+
     return {
-      opacity: logoOpacity.value,
+      opacity: keyboardOffset ? 0 : logoOpacity.value,
       transform: [
         { scale: logoScale.value },
         { translateY: logoTranslateY.value }
@@ -182,7 +192,16 @@ export default function AnimatedLogoScreen() {
   const formContainerAnimatedStyle = useAnimatedStyle(() => {
     return {
       opacity: formContainerOpacity.value,
-      transform: [{ translateY: formContainerTranslateY.value }],
+      transform: [
+        { translateY: formContainerTranslateY.value },
+        { translateY: -keyboard.height.value * 0.7 }
+      ],
+    };
+  });
+
+  const containerAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      paddingBottom: keyboard.height.value > 0 ? keyboard.height.value * 0.2 : 0,
     };
   });
 
@@ -244,7 +263,7 @@ export default function AnimatedLogoScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, containerAnimatedStyle]}>
       <Animated.View style={[styles.background, backgroundAnimatedStyle]}>
         {generatePattern()}
       </Animated.View>
@@ -258,11 +277,9 @@ export default function AnimatedLogoScreen() {
       </Animated.View>
 
       <Animated.View style={[styles.formContainer, formContainerAnimatedStyle]}>
-        <View style={styles.formPlaceholder}>
-          {/* Form content will go here */}
-        </View>
+        {children}
       </Animated.View>
-    </View>
+    </Animated.View>
   );
 }
 

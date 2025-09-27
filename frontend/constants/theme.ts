@@ -10,8 +10,12 @@ const tintColorDark = '#fff';
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
+    primary: '#FF33A3',
+    text: '#1E1E1E',
+    background: '#FEF8EB',
+    error: '#f94f4fff',
+    placeholder: '#9F9A91',
+    // theme end
     tint: tintColorLight,
     icon: '#687076',
     tabIconDefault: '#687076',
